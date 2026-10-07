@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cover Letter Formula Builder & Formatter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 font-sans">
+
+<div class="max-w-3xl mx-auto px-4 py-8">
+  <header class="mb-8 text-center">
+    <h1 class="text-3xl font-bold text-slate-800">📝 Cover Letter Formula Builder</h1>
+    <p class="text-slate-500 mt-1">STAR-method cover letter generator with tone control.</p>
+  </header>
+
+  <!-- Form -->
+  <section class="bg-white rounded-2xl shadow-md p-6 mb-6" aria-label="Cover letter input form">
+    <h2 class="text-lg font-semibold text-blue-700 mb-4">Your Details</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label for="roleTitle" class="block text-sm font-medium text-gray-700 mb-1">Role Title</label>
+        <input type="text" id="roleTitle" placeholder="e.g. Senior Product Manager"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+      </div>
+      <div>
+        <label for="companyName" class="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+        <input type="text" id="companyName" placeholder="e.g. Acme Corp"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+      </div>
+      <div>
+        <label for="industry" class="block text-sm font-medium text-gray-700 mb-1">Industry</label>
+        <select id="industry"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
+          <option value="tech">Technology</option>
+          <option value="finance">Finance</option>
+          <option value="healthcare">Healthcare</option>
+          <option value="education">Education</option>
+          <option value="retail">Retail</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div>
+        <label for="tone" class="block text-sm font-medium text-gray-700 mb-1">Base Tone</label>
+        <select id="tone"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
+          <option value="professional">Professional</option>
+          <option value="friendly">Friendly</option>
+          <option value="bold">Bold</option>
+        </select>
+      </div>
+      <div class="sm:col-span-2">
+        <label for="skills" class="block text-sm font-medium text-gray-700 mb-1">Key Skills (comma separated)</label>
+        <input type="text" id="skills" placeholder="e.g. data analysis, cross-functional leadership, agile, Python"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+      </div>
+      <div class="sm:col-span-2">
+        <label for="hook" class="block text-sm font-medium text-gray-700 mb-1">Story Hook (one sentence)</label>
+        <input type="text" id="hook" placeholder="e.g. I grew a SaaS product from 0 to 50k users in 18 months."
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+      </div>
+
+      <!-- Formality slider -->
+      <div class="sm:col-span-2">
+        <label for="formalitySlider" class="block text-sm font-medium text-gray-700 mb-1">
+          Formality Level: <span id="formalityLabel" class="font-bold text-blue-600">3 — Balanced</span>
+        </label>
+        <input type="range" id="formalitySlider" min="1" max="5" value="3" step="1"
+          class="w-full accent-blue-500"
+          aria-label="Formality level from 1 casual to 5 highly formal" />
+        <div class="flex justify-between text-xs text-gray-400 mt-1">
+          <span>1 Casual</span><span>2</span><span>3 Balanced</span><span>4</span><span>5 Formal</span>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="generateLetter()"
+      class="mt-5 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg px-4 py-3 transition text-base"
+      aria-label="Generate cover letter">
+      ✨ Generate Cover Letter
+    </button>
+    <p id="formError" class="hidden text-red-500 text-sm mt-2"></p>
+  </section>
+
+  <!-- Output -->
+  <section id="outputSection" class="hidden bg-white rounded-2xl shadow-md p-6 mb-6" aria-label="Generated cover letter">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-blue-700">Generated Cover Letter</h2>
+      <div class="flex gap-2">
+        <span id="wordCount" class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-lg"></span>
+        <button onclick="copyToClipboard()"
+          class="text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded-lg font-medium transition"
+          aria-label="Copy cover letter to clipboard">📋 Copy</button>
+        <button onclick="exportText()"
+          class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1 rounded-lg font-medium transition"
+          aria-label="Export cover letter as plain text file">⬇ Export</button>
+      </div>
+    </div>
+    <p id="copyMsg" class="hidden text-green-600 text-sm mb-2 font-medium">✓ Copied to clipboard!</p>
+    <div id="letterOutput"
+      class="prose prose-sm max-w-none bg-slate-50 rounded-xl p-5 border border-slate-200 text-gray-800 leading-relaxed whitespace-pre-wrap font-serif text-sm min-h-48">
+    </div>
+  </section>
+</div>
+
+<script>
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  const FORMALITY_LABELS = ['', '1 — Casual', '2 — Semi-Casual', '3 — Balanced', '4 — Semi-Formal', '5 — Highly Formal'];
+  document.getElementById('formalitySlider').addEventListener('input', function() {
+    document.getElementById('formalityLabel').textContent = FORMALITY_LABELS[parseInt(this.value)];
+  });
+
+  const INDUSTRY_LINES = {
+    tech: "the fast-moving technology landscape",
+    finance: "the precision-driven finance sector",
+    healthcare: "the mission-critical healthcare industry",
+    education: "the impact-focused education sector",
+    retail: "the dynamic retail environment",
+    other: "your industry"
+  };
+
+  const TONE_OPENERS = {
+    professional: { 1: "I am writing to express my interest in", 5: "I respectfully submit my application for" },
+    friendly: { 1: "I'd love to throw my hat in the ring for", 5: "I am genuinely excited to apply for" },
+    bold: { 1: "Here's why I'm the right fit for", 5: "I am confident I am the ideal candidate for" }
+  };
+
+  const FORMALITY_CLOSERS = [
+    '',
+    "Thanks so much — I'd love to chat!",
+    "I'd really appreciate the chance to connect.",
+    "I look forward to the opportunity to discuss my application further.",
+    "I would welcome the opportunity to discuss how my background aligns with your needs.",
+    "I remain at your disposal for any further information you may require, and I look forward to the possibility of contributing to your esteemed organization."
+  ];
+
+  function interpolate(a, b, t) {
+    // t: 1..5 → pick from low or high variant
+    return t <= 3 ? a : b;
+  }
+
+  function generateLetter() {
+    const role = document.getElementById('roleTitle').value.trim();
+    const company = document.getElementById('companyName').value.trim();
+    const industry = document.getElementById('industry').value;
+    const tone = document.getElementById('tone').value;
+    const skillsRaw = document.getElementById('skills').value.trim();
+    const hook = document.getElementById('hook').value.trim();
+    const formality = parseInt(document.getElementById('formalitySlider').value);
+
+    const errEl = document.getElementById('formError');
+    if (!role || !company || !skillsRaw || !hook) {
+      errEl.textContent = 'Please fill in Role Title, Company Name, Key Skills, and Story Hook.';
+      errEl.classList.remove('hidden');
+      return;
+    }
+    errEl.classList.add('hidden');
+
+    const skills = skillsRaw.split(',').map(s => s.trim()).filter(Boolean);
+    const skillList = skills.length > 1
+      ? skills.slice(0, -1).join(', ') + ' and ' + skills[skills.length - 1]
+      : skills[0] || 'a wide range of skills';
+
+    const opener = TONE_OPENERS[tone][formality <= 3 ? 1 : 5];
+    const closer = FORMALITY_CLOSERS[formality];
+    const industryLine = INDUSTRY_LINES[industry];
+
+    // STAR-method template
+    const paragraphs = [];
+
+    // Opening / hook
+    if (formality >= 4) {
+      paragraphs.push(`Dear Hiring Manager,`);
+    } else {
+      paragraphs.push(`Hi there,`);
+    }
+
+    paragraphs.push(`${opener} the ${role} position at ${company}. ${hook}`);
+
+    // Situation + Task
+    const situationVerb = formality <= 2 ? "I've spent my career" : "Throughout my professional career, I have";
+    paragraphs.push(`${situationVerb} working in ${industryLine}, developing deep expertise in ${skillList}. I understand the challenges that teams at companies like ${company} face, and I have consistently delivered results by aligning technical execution with strategic objectives.`);
+
+    // Action
+    const actionIntro = formality <= 2
+      ? "Here's what I bring to the table:"
+      : "The following highlights illustrate my capabilities:";
+    const bulletIntro = tone === 'bold'
+      ? "I don't just meet expectations — I raise them."
+      : formality >= 4
+        ? "I am particularly proud of the following achievements:"
+        : "A few highlights from my work:";
+    paragraphs.push(`${actionIntro}\n\n${bulletIntro}\n${skills.slice(0, 3).map(s => `• Demonstrated mastery of ${s}, driving measurable impact in cross-functional environments.`).join('\n')}`);
+
+    // Result
+    const resultIntro = formality <= 2
+      ? "The result? Teams I've worked with move faster and ship better."
+      : "The results have consistently demonstrated the value of a disciplined, skills-driven approach to execution.";
+    paragraphs.push(`${resultIntro} I believe these qualities make me an excellent candidate for ${company}'s ${role} role.`);
+
+    // Closing
+    const cta = formality <= 2
+      ? `I'd love to learn more about this role and share how I can contribute. Feel free to reach out!`
+      : `I would be delighted to discuss how my experience aligns with ${company}'s goals at your earliest convenience.`;
+    paragraphs.push(`${cta}\n\n${closer}\n\n${formality >= 4 ? 'Yours sincerely,' : 'Best,'}\n[Your Name]`);
+
+    const letter = paragraphs.join('\n\n');
+
+    document.getElementById('outputSection').classList.remove('hidden');
+    // Use textContent to set the letter (no HTML injection risk)
+    document.getElementById('letterOutput').textContent = letter;
+    const wordCount = letter.split(/\s+/).filter(Boolean).length;
+    document.getElementById('wordCount').textContent = wordCount + ' words';
+  }
+
+  function copyToClipboard() {
+    const text = document.getElementById('letterOutput').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      document.getElementById('copyMsg').classList.remove('hidden');
+      setTimeout(() => document.getElementById('copyMsg').classList.add('hidden'), 2500);
+    }).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      document.getElementById('copyMsg').classList.remove('hidden');
+      setTimeout(() => document.getElementById('copyMsg').classList.add('hidden'), 2500);
+    });
+  }
+
+  function exportText() {
+    const text = document.getElementById('letterOutput').textContent;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'cover-letter.txt';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+</script>
+</body>
+</html>
